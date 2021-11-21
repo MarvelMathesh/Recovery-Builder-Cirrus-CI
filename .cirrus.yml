@@ -1,0 +1,59 @@
+env:
+    rcloneconfig: ""
+    MANIFEST: "https://gitlab.com/OrangeFox/Manifest"
+    MANIFEST_BRANCH: "fox_9.0"
+    DEVICE: "land"
+    DT_LINK: "https://github.com/MarvelMathesh/omni_device_xiaomi_land"
+    DT_PATH: "device/xiaomi/land"
+    TARGET: "recoveryimage"
+    BUILD_TYPE: "eng"
+    COMMAND: "git clone https://gitlab.com/OrangeFox/misc/theme bootable/recovery/gui/theme --depth=1"
+    COMMAND2: ""
+
+task:
+  name: "Recovery-Builder"
+  timeout_in: 480m  
+  container:
+      image: marvelmathesh/docker:rom
+      cpu: 8
+      memory: 16G
+
+  Build-Env-Setup_background_script:
+       - export DEBIAN_FRONTEND=noninteractive
+       - apt update
+       - apt install sudo
+       - mkdir -p ~/.config/rclone
+       - echo "$rcloneconfig" > ~/.config/rclone/rclone.conf
+       - DEBIAN_FRONTEND=noninteractive
+       - sudo apt install python2 -y
+       - sudo ln -sf /usr/bin/python2 /usr/bin/python
+       - mkdir -p /tmp/ccache
+       - cd /tmp
+
+  Storage-Checker_background_script:
+      - df -h
+      - lsblk
+      - ls -l -a -h
+
+  Sync_script:
+      - cd /tmp/rom
+      - repo init -u $MANIFEST -b $MANIFEST_BRANCH --depth=1 --groups=all,-notdefault,-device,-darwin,-x86,-mips
+      - repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
+      - git clone $DT_LINK --depth=1 --single-branch $DT_PATH
+      - $COMMAND #use if needed ;)
+
+  Build_script:
+      - cd /tmp/rom
+      - export CCACHE_DIR=/tmp/ccache
+      - export CCACHE_EXEC=$(which ccache)
+      - export USE_CCACHE=1
+      - ccache -M 20G
+      - ccache -o compression=true
+      - ccache -z
+      - . build/envsetup.sh && lunch omni_$DEVICE-$BUILD_TYPE
+#      - $COMMAND2 #use if needed ;)
+      - make $TARGET -j8 2>&1 | tee build.log
+
+  Upload_script:
+      - curl -sL https://git.io/file-transfer | sh && ./transfer wet /tmp/rom/out/target/product/*/*.zip
+      - ./transfer wet /tmp/rom/out/target/product/*/*.img
