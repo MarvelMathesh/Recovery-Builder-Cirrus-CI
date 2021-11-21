@@ -1,5 +1,5 @@
 env:
-    rcloneconfig: ""
+    RCLONE: "ENCRYPTED[91b79bab4f62dc685e4b058be9c7f50b6b04e19b49d9428726222a96975a8d44a32130d90defa269588e5a5abbd56e08]"
     MANIFEST: "https://gitlab.com/OrangeFox/Manifest"
     MANIFEST_BRANCH: "fox_9.0"
     DEVICE: "land"
@@ -9,6 +9,10 @@ env:
     BUILD_TYPE: "eng"
     COMMAND: "git clone https://gitlab.com/OrangeFox/misc/theme bootable/recovery/gui/theme --depth=1"
     COMMAND2: ""
+    TG_TOKEN: "ENCRYPTED[6c365afb3cbf7f59c490b558865d4226fc654a96891dc945afcd6f3962ec2fe6bf6a7426d3effbaf495b8f32a3488cbd]"
+    TG_CHAT_ID: "ENCRYPTED[3c19d691e5a972c47afeb53e6f923ac291095b5689de6e0023c208f5a514d840bdc86f11a7fee59e2688aa07e2f4daa8]"
+    TZ: "Asia/Kolkata"
+    DRIVE: "ENCRYPTED[f2618529e5a34a6e81c6d22849abd5c6a83d92ec527c04c2228fb5b233b8ffca9331cda2c251d0cfedf08afba14e41f9]"
 
 task:
   name: "Recovery-Builder"
@@ -35,25 +39,5 @@ task:
       - lsblk
       - ls -l -a -h
 
-  Sync_script:
-      - cd /tmp/rom
-      - repo init -u $MANIFEST -b $MANIFEST_BRANCH --depth=1 --groups=all,-notdefault,-device,-darwin,-x86,-mips
-      - repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
-      - git clone $DT_LINK --depth=1 --single-branch $DT_PATH
-      - $COMMAND #use if needed ;)
-
   Build_script:
-      - cd /tmp/rom
-      - export CCACHE_DIR=/tmp/ccache
-      - export CCACHE_EXEC=$(which ccache)
-      - export USE_CCACHE=1
-      - ccache -M 20G
-      - ccache -o compression=true
-      - ccache -z
-      - . build/envsetup.sh && lunch omni_$DEVICE-$BUILD_TYPE
-#      - $COMMAND2 #use if needed ;)
-      - make $TARGET -j8 2>&1 | tee build.log
-
-  Upload_script:
-      - curl -sL https://git.io/file-transfer | sh && ./transfer wet /tmp/rom/out/target/product/*/*.zip
-      - ./transfer wet /tmp/rom/out/target/product/*/*.img
+      - bash build.sh
