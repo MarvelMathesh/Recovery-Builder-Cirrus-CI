@@ -41,7 +41,7 @@ ccache -M 20G
 ccache -o compression=true
 ccache -z
 
-. build/envsetup.sh && lunch omni_$DEVICE-$BUILD_TYPE
+. build/envsetup.sh && lunch twrp_$DEVICE-$BUILD_TYPE
 $COMMAND2 #use if needed ;)
 make $TARGET -j8 2>&1 | tee build.log
 
