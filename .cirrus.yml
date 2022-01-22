@@ -2,7 +2,7 @@ env:
     RCLONE: "ENCRYPTED[91b79bab4f62dc685e4b058be9c7f50b6b04e19b49d9428726222a96975a8d44a32130d90defa269588e5a5abbd56e08]"
     MANIFEST: "https://gitlab.com/OrangeFox/Manifest"
     MANIFEST_BRANCH: "fox_9.0"
-    DEVICE: "land"
+    DEVICE: "RMX3171"
     DT_LINK: "https://github.com/sarthakroy2002/android_recovery_realme_RMX3171"
     DT_PATH: "device/realme/RMX3171"
     TARGET: "recoveryimage"
