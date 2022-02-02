@@ -16,7 +16,7 @@ env:
 
 task:
   name: "Recovery-Builder"
-  timeout_in: 480m  
+  timeout_in: 460m  
   container:
       image: marvelmathesh/docker:rom
       cpu: 8
